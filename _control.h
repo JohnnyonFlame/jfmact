@@ -44,10 +44,11 @@ extern "C" {
 //
 //****************************************************************************
 
-#define BUTTON0_SCAN_1   sc_Space
+#define BUTTON0_SCAN_1   sc_LeftControl
 #define BUTTON0_SCAN_2   sc_Enter
 #define BUTTON0_SCAN_3   sc_kpad_Enter
-#define BUTTON1_SCAN     sc_Escape
+#define BUTTON1_SCAN_1   sc_Escape
+#define BUTTON1_SCAN_2   sc_LeftAlt
 
 #define AXISUNDEFINED   0x7f
 #define BUTTONUNDEFINED 0x7f
@@ -68,8 +69,15 @@ extern "C" {
 #define MouseInt         0x33
 #define JoyMax           0xa00
 #define MaxJoyValue      5000
+
+#define MINIMUMANALOGDEADZONE 10
 #define MINIMUMMOUSESENSITIVITY 0x1000
 #define DEFAULTMOUSESENSITIVITY 0x7000+MINIMUMMOUSESENSITIVITY
+
+#define DEFAULTANALOGDEADZONE 35
+
+#define MINIMUMANALOGSENSITIVITY 65536
+#define DEFAULTANALOGSENSITIVITY 524288
 
 #define CONTROL_NUM_FLAGS   64
 #define INSTANT_ONOFF       0

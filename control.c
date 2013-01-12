@@ -17,7 +17,6 @@
 #include "compat.h"
 #include "pragmas.h"
 
-
 boolean CONTROL_JoyPresent = false;
 boolean CONTROL_JoystickEnabled = false;
 boolean CONTROL_MousePresent = false;
@@ -29,6 +28,8 @@ uint32  CONTROL_ButtonHeldState2 = 0;
 
 static int32 CONTROL_UserInputDelay = -1;
 static int32 CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
+static int32 CONTROL_AnalogSensitivity = DEFAULTANALOGSENSITIVITY;
+static int32 CONTROL_AnalogDeadzone = DEFAULTANALOGDEADZONE;
 static int32 CONTROL_NumMouseButtons = 0;
 static int32 CONTROL_NumMouseAxes = 0;
 static int32 CONTROL_NumJoyButtons = 0;
@@ -85,9 +86,24 @@ int32 CONTROL_GetMouseSensitivity(void)
 	return (CONTROL_MouseSensitivity - MINIMUMMOUSESENSITIVITY);
 }
 
+int32 CONTROL_GetAnalogSensitivity(void)
+{
+	return (CONTROL_AnalogSensitivity - MINIMUMANALOGSENSITIVITY);
+}
+
 void CONTROL_SetMouseSensitivity(int32 newsensitivity)
 {
-	CONTROL_MouseSensitivity = newsensitivity + MINIMUMMOUSESENSITIVITY;
+	CONTROL_MouseSensitivity = newsensitivity + MINIMUMANALOGSENSITIVITY;
+}
+
+void CONTROL_SetAnalogDeadzone(int32 newdeadzone)
+{
+	CONTROL_AnalogDeadzone = newdeadzone + MINIMUMANALOGDEADZONE;
+}
+
+void CONTROL_SetAnalogSensitivity(int32 newsensitivity)
+{
+	CONTROL_AnalogSensitivity = newsensitivity + MINIMUMMOUSESENSITIVITY;
 }
 
 boolean CONTROL_StartMouse(void)
@@ -109,7 +125,9 @@ void CONTROL_GetJoyDelta( void )
 	int32 i;
 	
 	for (i=0; i<joynumaxes; i++)
+	{
 		CONTROL_JoyAxes[i].analog = joyaxis[i] >> 5;
+	}
 }
 
 
@@ -579,7 +597,7 @@ void CONTROL_ScaleAxis(int32 axis, controldevice device)
 
 		case controldevice_joystick:
 			set = CONTROL_JoyAxes;
-			scale = CONTROL_JoyAxesScale;
+			scale = CONTROL_AnalogSensitivity;
 			break;
 
 		default: return;
@@ -618,6 +636,20 @@ void CONTROL_ApplyAxis(int32 axis, ControlInfo *info, controldevice device)
 	}
 }
 
+void D_SENSE(int32 *axis, int32 val)
+{
+	if (*axis > val)
+	{
+		*axis -= val;
+	}
+	else if (*axis < -val)
+	{
+		*axis += val;
+	}
+	else
+		*axis = 0;
+}
+
 void CONTROL_PollDevices(ControlInfo *info)
 {
 	int32 i;
@@ -648,7 +680,9 @@ void CONTROL_PollDevices(ControlInfo *info)
 
 		for (i=0; i<MAXJOYAXES; i++) {
 			CONTROL_DigitizeAxis(i, controldevice_joystick);
-			CONTROL_ScaleAxis(i, controldevice_joystick);
+			//CONTROL_ScaleAxis(i, controldevice_joystick);
+			D_SENSE(&CONTROL_JoyAxes[i].analog, CONTROL_AnalogDeadzone);
+			CONTROL_JoyAxes[i].analog = mulscale16(CONTROL_JoyAxes[i].analog, (CONTROL_AnalogSensitivity<<1));
 			LIMITCONTROL(&CONTROL_JoyAxes[i].analog);
 			CONTROL_ApplyAxis(i, info, controldevice_joystick);
 		}
@@ -757,7 +791,7 @@ void CONTROL_GetUserInput( UserInput *info )
 
 	if (KB_KeyDown[BUTTON0_SCAN_1] || KB_KeyDown[BUTTON0_SCAN_2] || KB_KeyDown[BUTTON0_SCAN_3])
 		info->button0 = 1;
-	if (KB_KeyDown[BUTTON1_SCAN])
+	if (KB_KeyDown[BUTTON1_SCAN_1] || KB_KeyDown[BUTTON1_SCAN_2])
 		info->button1 = 1;
 
 	if (CONTROL_UserInputCleared[1]) {

@@ -150,6 +150,51 @@ static struct {
 	{ "Delete", 0xd3 },
 };
 
+static struct {
+	char *key;
+	kb_scancode sc;
+} sctokeylut_clean[] = {
+	//DPAD non-combo
+	
+	{ "Up", 0xc8 },
+	{ "Left", 0xcb },
+	{ "Right", 0xcd },
+	{ "Down", 0xd0 },
+	
+	//DPAD Combo
+	{ "Sel+Up", 0x16 },
+	{ "Sel+Left", 0x26 },
+	{ "Sel+Down", 0x20 },
+	{ "Sel+Right", 0x13 },
+	
+	//Shoulder buttons non combo
+	{ "L", 0xf },
+	{ "R", 0xe },
+	
+	//Shoulder buttons w/ combo
+	{ "Sel+L", 0x1a },
+	{ "Sel+R", 0x1b },
+	
+	//Start/select
+	{ "Select", 0x1 },
+	{ "Start", 0x1c },
+
+	//Face action buttons non-combo
+	{ "X", 0x39 },
+	{ "Y", 0x2a },
+	{ "A", 0x1d },
+	{ "B", 0x38 },
+
+	//Face Action Buttons w/ combo
+	{ "Sel+X", 0x2d },	
+	{ "Sel+Y", 0x15 },
+	{ "Sel+A", 0x1e },
+	{ "Sel+B", 0x30 },
+	
+	//Lock Slider
+	{ "LOCK", 0xc5 },
+};
+
 // translation table for turning scancode into ascii characters
 /*
 static char sctoasc[2][256] = {
@@ -239,11 +284,21 @@ void KB_ClearKeysDown( void )
 char *KB_ScanCodeToString( kb_scancode scancode )
 {
 	unsigned s;
-
+	
 	for (s=0; s < (sizeof(sctokeylut)/sizeof(sctokeylut[0])); s++)
 		if (sctokeylut[s].sc == scancode) return sctokeylut[s].key;
+		
+		return "";
+}
+
+char *KB_ScanCodeToString_clean( kb_scancode scancode )
+{
+	unsigned s;
 	
-	return "";
+	for (s=0; s < (sizeof(sctokeylut_clean)/sizeof(sctokeylut_clean[0])); s++)
+		if (sctokeylut_clean[s].sc == scancode) return sctokeylut_clean[s].key;
+		
+		return "";
 }
 
 kb_scancode KB_StringToScanCode( char * string )

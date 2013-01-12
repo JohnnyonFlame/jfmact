@@ -183,6 +183,7 @@ void CONTROL_CenterJoystick
    void ( *CenterRudder )( void )
    );
 int32 CONTROL_GetMouseSensitivity( void );
+void CONTROL_SetAnalogSensitivity( int32 newsensitivity );
 void CONTROL_SetMouseSensitivity( int32 newsensitivity );
 boolean CONTROL_Startup
    (
